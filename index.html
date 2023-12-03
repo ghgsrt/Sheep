@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Sheep</title>
+	</head>
+	<body>
+		<div id="app" x-data="controller">
+			<!-- <div x-show="!isLoaded" class="loading">Loading...</div>
+		<div x-show="isLoaded" class="loaded">
+			yo
+		</div> -->
+			<main>
+				<div class="history">
+					<template x-for="message in history">
+						<div class="msg">
+							<span class="msg-name" x-text="message[0]"></span>
+							<span class="msg-text" x-text="message[1]"></span>
+						</div>
+					</template>
+				</div>
+				<div class="input-bar">
+					<input />
+					<button class="send-btn">Send</button>
+				</div>
+			</main>
+			<aside></aside>
+		</div>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
