@@ -52,13 +52,13 @@ Alpine.data('controller', () => ({
 		// do whatever
 		dialogue.callOnEnd();
 	},
-	addJournalEntry(entry: string) {
+	addJournalEntry(_entry: string) {
 		// add entry to journal
 	},
-	setBGImage(url: string) {
+	setBGImage(_url: string) {
 		// set the bg
 	},
-	setOptions(options: Record<string, () => void>) {
+	setOptions(_options: Record<string, () => void>) {
 		// set the options
 	},
 
