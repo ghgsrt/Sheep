@@ -4,6 +4,7 @@ const V: Record<string, string[]> = {
 	take: ['get', 'grab', 'pick up', 'pick'],
 	examine: ['look at', 'look over', 'look in', 'look on', 'search'],
 	use: ['activate'],
+	explain: ['tell', 'describe', 'say', 'tell'],
 };
 
 const O: Record<string, string[]> = {

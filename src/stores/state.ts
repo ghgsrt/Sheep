@@ -1,4 +1,4 @@
-import { DialogueItem, setupDialogues } from '../dialogue';
+import { DialogueDef, DialogueItem, setupDialogues } from '../dialogue';
 
 export type StoryOption = () => void;
 export type StoryOptions = Record<string, Record<string, StoryOption>>;
@@ -52,6 +52,12 @@ const state = {
 	nokeDead: false,
 
 	bgImage: '',
+	portraitImage1: '',
+	portraitName1: '',
+	portraitImage2: '',
+	portraitName2: '',
+
+	activeSpeaker: '',
 
 	story: '',
 	storyIdx: -1,
@@ -68,9 +74,14 @@ const state = {
 		this[flag] = set ?? !this[flag];
 	},
 	runDialogue(item: DialogueItem) {
+		this.currDialogue.callBeforeNext?.();
+
 		this.currDialogue = item;
+
 		this.storyIdx = 0;
-		this.setOptions();
+		this.setOptions(); // clear options
+		this.activeSpeaker = item.dialogue.portraitName ?? '';
+		item.callOnStart();
 		this.updateDialogue();
 	},
 	continueDialogue() {
@@ -96,6 +107,7 @@ const state = {
 	updateDialogue() {
 		this.story = this.currDialogue.dialogue.text[this.storyIdx];
 		this.setBGImage(this.currDialogue.dialogue.bg || '');
+		this.setPortrait(this.currDialogue.dialogue);
 	},
 	addJournalEntry(entry: string) {
 		return entry;
@@ -105,6 +117,37 @@ const state = {
 	},
 	setOptions(options?: StoryOptions) {
 		this.options = options;
+	},
+	setPortrait(dialogue: DialogueDef) {
+		if (
+			dialogue.portrait === this.portraitImage1 ||
+			dialogue.portrait === this.portraitImage2 ||
+			dialogue.portraitName === 'DM'
+		)
+			return;
+
+		if (this.portraitImage1) {
+			this.portraitImage2 = dialogue.portrait ?? '';
+			this.portraitName2 = dialogue.portraitName ?? '';
+		} else {
+			this.portraitImage1 = dialogue.portrait ?? '';
+			this.portraitName1 = dialogue.portraitName ?? '';
+		}
+	},
+	clearPortrait(portrait?: string) {
+		if (this.portraitImage1 === portrait) {
+			this.portraitImage1 = '';
+			this.portraitName1 = '';
+		} else if (this.portraitImage2 === portrait) {
+			this.portraitImage2 = '';
+			this.portraitName2 = '';
+		}
+	},
+	clearPortraits() {
+		this.portraitImage1 = '';
+		this.portraitName1 = '';
+		this.portraitImage2 = '';
+		this.portraitName2 = '';
 	},
 };
 export default state;

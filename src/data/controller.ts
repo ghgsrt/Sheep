@@ -74,7 +74,7 @@ export default (): AlpineComponent<any> => ({
 				storyBlinkInterval = setInterval(() => {
 					story?.classList.toggle('blink');
 				}, 500);
-			}, 5000);
+			}, 3000);
 		});
 		this.$watch('$store.state.options', () => {
 			if (!state.options) return;
@@ -94,6 +94,8 @@ export default (): AlpineComponent<any> => ({
 				id: this.$id.bind(this),
 			})
 		);
+
+		// alert('ALL TEXT AND IMAGES ARE PLACEHOLDERS AND WILL BE REPLACED');
 	},
 });
 // export type StoryOption = () => void;

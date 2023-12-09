@@ -5,6 +5,6 @@ import { DialogueDef } from '../dialogue';
 export default {
 	intro: {
 		text: ["That sheep is Master Noke's... he desires to have it back."],
-		bg: 'todo',
+		bg: '',
 	},
 } satisfies Record<string, DialogueDef>;

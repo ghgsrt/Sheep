@@ -13,9 +13,17 @@
 			yo
 		</div> -->
 			<main x-data="view">
-				<section class="story">
+				<section
+					class="story"
+					:style="{backgroundImage: `url('/backgrounds/${$store.state.bgImage}')`}"
+				>
+					<!-- <img class="story-bg" :src="`/backgrounds/${$store.state.bgImage}`" /> -->
 					<div class="story-left">
-						<div class="story-portrait-1"></div>
+						<div
+							class="story-portrait-1"
+							:class="{ 'active': $store.state.activeSpeaker === $store.state.portraitName1 }"
+							:style="{backgroundImage: `url('/characters/${$store.state.portraitImage1}')`}"
+						></div>
 						<div class="inventory">
 							<div></div>
 							<div></div>
@@ -24,14 +32,26 @@
 					</div>
 					<div class="story-wrapper">
 						<div class="story-header">
-							<div class="story-name-1"></div>
-							<div class="story-name-2"></div>
+							<div
+								class="story-name-1"
+								:class="{ 'active': $store.state.activeSpeaker === $store.state.portraitName1 }"
+								x-show="$store.state.portraitName1"
+								x-text="$store.state.portraitName1"
+							></div>
+							<div
+								class="story-name-2"
+								:class="{ 'active': $store.state.activeSpeaker === $store.state.portraitName2 }"
+								x-show="$store.state.portraitName2"
+								x-text="$store.state.portraitName2"
+							></div>
 						</div>
 						<div
 							class="story-text"
 							x-ref="storyText"
+							:style="{borderTopLeftRadius: $store.state.portraitName1 !== '' ? '0' : '20px', borderTopRightRadius: $store.state.portraitName2 !== '' ? '0' : '20px'}"
 							@click="$store.state.continueDialogue()"
 							:waiting="$store.state.options !== undefined"
+							:activeSpeaker="$store.state.activeSpeaker"
 						>
 							<div x-html="$store.state.story"></div>
 						</div>
@@ -71,7 +91,11 @@
 						</div>
 					</div>
 					<div class="story-right">
-						<div class="story-portrait-2"></div>
+						<div
+							class="story-portrait-2"
+							:class="{ 'active': $store.state.activeSpeaker === $store.state.portraitName2 }"
+							:style="{backgroundImage: `url('/characters/${$store.state.portraitImage2}')`}"
+						></div>
 						<div class="inventory">
 							<div></div>
 							<div></div>

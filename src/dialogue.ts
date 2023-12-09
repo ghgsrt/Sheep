@@ -7,6 +7,8 @@ import { State } from './stores/state';
 export type DialogueDef = {
 	text: string[];
 	bg?: string;
+	portrait?: string;
+	portraitName?: string;
 };
 
 export type DialogueItem = {
@@ -14,8 +16,10 @@ export type DialogueItem = {
 	dialogue: DialogueDef;
 	onStart: (callback: () => void) => void;
 	onEnd: (callback: () => void) => void;
+	beforeNext: (callback: () => void) => void;
 	callOnStart: () => void;
 	callOnEnd: () => void;
+	callBeforeNext: () => void;
 };
 
 const toDialogue = (dialogue: DialogueDef): DialogueItem => {
@@ -23,19 +27,24 @@ const toDialogue = (dialogue: DialogueDef): DialogueItem => {
 
 	const _onStart: Array<() => void> = [];
 	const _onEnd: Array<() => void> = [];
+	const _beforeNext: Array<() => void> = [];
 	const onStart = (callback: () => void) => _onStart.push(callback);
 	const onEnd = (callback: () => void) => _onEnd.push(callback);
+	const beforeNext = (callback: () => void) => _beforeNext.push(callback);
 
 	const callOnStart = () => _onStart.forEach((callback) => callback());
 	const callOnEnd = () => _onEnd.forEach((callback) => callback());
+	const callBeforeNext = () => _beforeNext.forEach((callback) => callback());
 
 	return {
 		next,
 		dialogue,
 		onStart,
 		onEnd,
+		beforeNext,
 		callOnStart,
 		callOnEnd,
+		callBeforeNext,
 	};
 };
 
@@ -104,6 +113,10 @@ export const setupDialogues = (controller: any) => {
 		});
 	});
 
+	MP.playerTakesScroll.beforeNext(() => {
+		state.clearPortrait(MP.playerTakesScroll.dialogue.portrait);
+	});
+
 	DM.playerExaminesScroll.onEnd(() => {
 		state.toggleFlag('hasExaminedScroll');
 		state.setOptions({
@@ -120,44 +133,67 @@ export const setupDialogues = (controller: any) => {
 		});
 	});
 
-	DM.playerExplainsScroll.onEnd(() => {
+	DM.playerExplainsScroll.onStart(() => {
 		if (state.flag('hasExaminedScroll')) {
 			state.toggleFlag('hasSaidScrollName');
 			state.runDialogue(DM._explainScroll);
-			state.runDialogue(SB.playerExplainsScroll);
-			state.setOptions({
-				use: {
-					scroll: () => {
-						state.runDialogue(DM.playerUsesScroll);
-					},
-				},
-			});
 		} else {
 			state.runDialogue(DM._cantExplainScroll);
-			state.setOptions({
-				examine: {
-					scroll: () => {
-						state.runDialogue(DM.playerExaminesScroll);
-					},
-				},
-				use: {
-					scroll: () => {
-						state.runDialogue(DM.playerUsesScroll);
-					},
-				},
-			});
 		}
 	});
+	DM._explainScroll.onEnd(() => {
+		state.runDialogue(SB.playerExplainsScroll);
+	});
+	SB.playerExplainsScroll.onEnd(() => {
+		state.setOptions({
+			use: {
+				scroll: () => {
+					state.runDialogue(DM.playerUsesScroll);
+				},
+			},
+		});
+	});
+	DM._cantExplainScroll.onEnd(() => {
+		state.setOptions({
+			examine: {
+				scroll: () => {
+					state.runDialogue(DM.playerExaminesScroll);
+				},
+			},
+			use: {
+				scroll: () => {
+					state.runDialogue(DM.playerUsesScroll);
+				},
+			},
+		});
+	});
+
+	// SB.playerExplainsScroll.beforeNext(() => {
+	// 	state.clearPortrait(SB.playerExplainsScroll.dialogue.portrait);
+	// });
 
 	DM.playerUsesScroll.onEnd(() => {
 		state.toggleFlag('hasUsedScroll');
 		state.toggleFlag('SwAIsActive');
+		state.clearPortrait(DM.playerUsesScroll.dialogue.portrait);
 		state.runDialogue(SB.sheepSpeaksFirstTime);
+	});
+
+	DM.playerUsesScroll.beforeNext(() => {
+		// state.clearPortrait('player.png'); //? fix dis
+		state.clearPortraits();
+	});
+
+	SB.sheepSpeaksFirstTime.beforeNext(() => {
+		state.clearPortrait(SB.sheepSpeaksFirstTime.dialogue.portrait);
 	});
 
 	SB.sheepExplainsQuest.onEnd(() => {
 		state.toggleFlag('SBExplainedQuest');
 		state.runDialogue(DM.gruzAppears);
+	});
+	SB.sheepExplainsQuest.beforeNext(() => {
+		state.clearPortrait(SB.sheepExplainsQuest.dialogue.portrait);
 	});
 
 	return DM.intro; // starting point
