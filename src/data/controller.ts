@@ -27,7 +27,7 @@ export default (): AlpineComponent<any> => ({
 
 	init() {
 		const updateInvSizing = () => {
-			const inventory = document.querySelectorAll('.inventory > div');
+			const inventory = document.querySelectorAll('.inventory div');
 			for (const item of inventory) {
 				const width = item.clientWidth;
 				//@ts-ignore - this is fine
@@ -47,8 +47,10 @@ export default (): AlpineComponent<any> => ({
 			}
 		};
 
-		updateInvSizing();
-		updateTabSizing();
+		this.$nextTick(() => {
+			updateInvSizing();
+			updateTabSizing();
+		});
 		window.addEventListener('resize', updateInvSizing);
 		window.addEventListener('resize', updateTabSizing);
 
@@ -95,7 +97,7 @@ export default (): AlpineComponent<any> => ({
 			})
 		);
 
-		alert('ALL TEXT AND IMAGES ARE PLACEHOLDERS AND WILL BE REPLACED');
+		// alert('ALL TEXT AND IMAGES ARE PLACEHOLDERS AND WILL BE REPLACED');
 	},
 });
 // export type StoryOption = () => void;

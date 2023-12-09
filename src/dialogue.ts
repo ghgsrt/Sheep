@@ -3,6 +3,7 @@ import miscPartyDialogues from './dialogues/MP';
 import shinebrightDialogues from './dialogues/SB';
 import gruzDialogues from './dialogues/GZ';
 import { State } from './stores/state';
+import { items } from './items';
 
 export type DialogueDef = {
 	text: string[];
@@ -89,9 +90,12 @@ export const setupDialogues = (controller: any) => {
 		});
 	});
 
-	DM.playerTakesScroll.onEnd(() => {
+	DM.playerTakesScroll.onStart(() => {
 		state.toggleFlag('hasSwA', true);
-
+		state.pushInventoryItem(items.scrollOfSPA);
+		console.log(JSON.stringify(state.inventory));
+	});
+	DM.playerTakesScroll.onEnd(() => {
 		state.runDialogue(MP.playerTakesScroll); // have random party member say it
 
 		state.setOptions({

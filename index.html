@@ -15,19 +15,19 @@
 			<main x-data="view">
 				<section
 					class="story"
-					:style="{backgroundImage: `url('/backgrounds/${$store.state.bgImage}')`}"
+					:style="{ backgroundImage: `url('/backgrounds/${$store.state.bgImage}')` }"
 				>
 					<!-- <img class="story-bg" :src="`/backgrounds/${$store.state.bgImage}`" /> -->
 					<div class="story-left">
 						<div
 							class="story-portrait-1"
 							:class="{ 'active': $store.state.activeSpeaker === $store.state.portraitName1 }"
-							:style="{backgroundImage: `url('/characters/${$store.state.portraitImage1}')`}"
+							:style="{ backgroundImage: `url('/characters/${$store.state.portraitImage1}')` }"
 						></div>
 						<div class="inventory">
-							<div></div>
-							<div></div>
-							<div></div>
+							<template x-for="i in 3">
+								<div x-bind="item($store.state.inventory[i])"></div>
+							</template>
 						</div>
 					</div>
 					<div class="story-wrapper">
@@ -48,7 +48,7 @@
 						<div
 							class="story-text"
 							x-ref="storyText"
-							:style="{borderTopLeftRadius: $store.state.portraitName1 !== '' ? '0' : '20px', borderTopRightRadius: $store.state.portraitName2 !== '' ? '0' : '20px'}"
+							:style="{ borderTopLeftRadius: $store.state.portraitName1 !== '' ? '0' : '20px', borderTopRightRadius: $store.state.portraitName2 !== '' ? '0' : '20px' }"
 							@click="$store.state.continueDialogue()"
 							:waiting="$store.state.options !== undefined"
 							:activeSpeaker="$store.state.activeSpeaker"
@@ -97,9 +97,12 @@
 							:style="{backgroundImage: `url('/characters/${$store.state.portraitImage2}')`}"
 						></div>
 						<div class="inventory">
-							<div></div>
-							<div></div>
-							<div></div>
+							<template
+								x-for="i in 3"
+								:key="$store.state.inventory[i*2]?.name ?? i*2"
+							>
+								<div x-bind="item($store.state.inventory[i*2])"></div>
+							</template>
 						</div>
 					</div>
 				</section>

@@ -1,4 +1,6 @@
 import { DialogueDef, DialogueItem } from '../dialogue';
+import { Item } from '../items';
+import { deepCopy } from '../utils/utils';
 
 export type StoryOption = () => void;
 export type StoryOptions = Record<string, Record<string, StoryOption>>;
@@ -62,10 +64,12 @@ const state = {
 	story: '',
 	storyIdx: -1,
 	currDialogue: {} as DialogueItem,
-
 	options: undefined as StoryOptions | undefined,
 
 	history: [] as string[],
+	journal: [] as string[],
+	note: '',
+	inventory: [] as (Item | undefined)[],
 
 	flag(flag: Flag) {
 		return this[flag];
@@ -148,6 +152,35 @@ const state = {
 		this.portraitName1 = '';
 		this.portraitImage2 = '';
 		this.portraitName2 = '';
+	},
+	pushInventoryItem(item: Item) {
+		let idx;
+		if ((idx = this.inventory.findIndex((i) => i?.name === item.name)) > -1) {
+			this.inventory[idx]!.quantity++;
+			return;
+		}
+
+		for (let i = 0; i < this.inventory.length + 1; i++) {
+			if (!this.inventory[i]) {
+				const fns: Record<string, any> = {};
+				for (const key in item)
+					if (typeof item[key] === 'function') fns[key] = item[key];
+
+				this.inventory[i] = {
+					...deepCopy(item),
+					...fns,
+				};
+				this.inventory = [...this.inventory];
+				return;
+			}
+		}
+	},
+	removeInventoryItem(item: string) {
+		const idx = this.inventory.findIndex((i) => item === i?.name);
+		if (idx === -1) return;
+
+		this.inventory[idx]!.quantity--;
+		if (this.inventory[idx]!.quantity === 0) this.inventory[idx] = undefined;
 	},
 };
 export default state;
