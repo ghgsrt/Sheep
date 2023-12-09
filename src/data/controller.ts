@@ -95,7 +95,7 @@ export default (): AlpineComponent<any> => ({
 			})
 		);
 
-		// alert('ALL TEXT AND IMAGES ARE PLACEHOLDERS AND WILL BE REPLACED');
+		alert('ALL TEXT AND IMAGES ARE PLACEHOLDERS AND WILL BE REPLACED');
 	},
 });
 // export type StoryOption = () => void;
