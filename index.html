@@ -12,21 +12,106 @@
 		<div x-show="isLoaded" class="loaded">
 			yo
 		</div> -->
-			<main>
-				<div class="history">
-					<template x-for="message in history">
-						<div class="msg">
-							<span class="msg-name" x-text="message[0]"></span>
-							<span class="msg-text" x-text="message[1]"></span>
+			<main x-data="view">
+				<section class="story">
+					<div class="story-left">
+						<div class="story-portrait-1"></div>
+						<div class="inventory">
+							<div></div>
+							<div></div>
+							<div></div>
 						</div>
-					</template>
-				</div>
+					</div>
+					<div class="story-wrapper">
+						<div class="story-header">
+							<div class="story-name-1"></div>
+							<div class="story-name-2"></div>
+						</div>
+						<div
+							class="story-text"
+							x-ref="storyText"
+							@click="$store.state.continueDialogue()"
+							:waiting="$store.state.options !== undefined"
+						>
+							<div x-html="$store.state.story"></div>
+						</div>
+						<div class="tab-bar">
+							<div
+								class="tab"
+								@click="tabIdx = 0"
+								:class="{ active: tabIdx === 0 }"
+							>
+								History
+								<!-- <img /> -->
+							</div>
+							<div
+								class="tab"
+								@click="tabIdx = 1"
+								:class="{ active: tabIdx === 1 }"
+							>
+								Journal
+								<!-- <img /> -->
+							</div>
+							<div
+								class="tab"
+								@click="tabIdx = 2"
+								:class="{ active: tabIdx === 2 }"
+							>
+								Notes
+								<!-- <img /> -->
+							</div>
+							<div
+								class="tab"
+								@click="tabIdx = 3"
+								:class="{ active: tabIdx === 3 }"
+							>
+								Combat
+								<!-- <img src="test.png" /> -->
+							</div>
+						</div>
+					</div>
+					<div class="story-right">
+						<div class="story-portrait-2"></div>
+						<div class="inventory">
+							<div></div>
+							<div></div>
+							<div></div>
+						</div>
+					</div>
+				</section>
+				<section class="tabs" x-ref="tabs">
+					<div class="tab-wrapper">
+						<!-- <div class="pad-1"></div> -->
+						<div class="tab-content">
+							<div class="history-tab" x-show="tabIdx === 0">
+								<template x-for="message in $store.state.history">
+									<div class="msg">
+										<span class="msg-text" x-html="message"></span>
+									</div>
+								</template>
+							</div>
+							<div class="journal-tab" x-show="tabIdx === 1">TODO: Journal</div>
+							<div class="notes-tab" x-show="tabIdx === 2">TODO: Notes</div>
+							<div class="combat-tab" x-show="tabIdx === 3">TODO: Combat</div>
+						</div>
+						<!-- <div class="pad-2"></div> -->
+					</div>
+				</section>
 				<div class="input-bar">
-					<input />
-					<button class="send-btn">Send</button>
+					<input
+						type="text"
+						x-ref="input"
+						@keydown.enter="prompt"
+						:disabled="$store.state.options === undefined"
+					/>
+					<button class="send-btn" @click="prompt">Send</button>
 				</div>
 			</main>
-			<aside></aside>
+			<!-- <aside>
+				<div class="auto-journal"></div>
+				<div class="journal"></div>
+				<div class="inventory"></div>
+			</aside> -->
 		</div>
 		<script type="module" src="/src/main.ts"></script>
 	</body>

@@ -2,30 +2,7 @@ import DMDialogues from './dialogues/DM';
 import miscPartyDialogues from './dialogues/MP';
 import shinebrightDialogues from './dialogues/SB';
 import gruzDialogues from './dialogues/GZ';
-
-export type Flag =
-	| 'canGetSwA'
-	| 'hasSwA'
-	| 'hasUsedScroll'
-	| 'hasExaminedScroll'
-	| 'hasSaidScrollName'
-	| 'SwAIsActive'
-	| 'SBExplainedQuest'
-	| 'SBCaptured'
-	| 'gruzAtCompound'
-	| 'gruzIsDefeated'
-	| 'pathExamined'
-	| 'apesAreAsleep'
-	| 'apesAreDefeated'
-	| 'bearInOuthouse'
-	| 'bearIsDefeated'
-	| 'partyWantsComp'
-	| 'partyIsHostile'
-	| 'nokeIsAlerted'
-	| 'nokeRetreated'
-	| 'wyrmDead'
-	| 'nokeDefeated'
-	| 'nokeDead';
+import { State } from './stores/state';
 
 export type DialogueDef = {
 	text: string[];
@@ -39,16 +16,6 @@ export type DialogueItem = {
 	onEnd: (callback: () => void) => void;
 	callOnStart: () => void;
 	callOnEnd: () => void;
-};
-
-export type ControllerFns = {
-	flag: (flag: Flag) => boolean;
-	watch: (flag: Flag, callback: (value: boolean) => void) => void;
-	runDialogue: (dialogue: DialogueItem) => void;
-	toggleFlag: (flag: Flag, set?: boolean) => void;
-	addJournalEntry: (entry: string) => void;
-	setBGImage: (url: string) => void;
-	setOptions: (options: Record<string, () => void>) => void;
 };
 
 const toDialogue = (dialogue: DialogueDef): DialogueItem => {
@@ -79,11 +46,13 @@ const toDialogues = (dialogues: Record<string, DialogueDef>) => {
 	return d;
 };
 
-export const setupDialogues = (controller: ControllerFns) => {
+export const setupDialogues = (controller: any) => {
 	const DM = toDialogues(DMDialogues);
 	const MP = toDialogues(miscPartyDialogues);
 	const SB = toDialogues(shinebrightDialogues);
 	const GZ = toDialogues(gruzDialogues);
+
+	const state = Alpine.store('state') as State;
 
 	DM.intro.next = DM.sheepAppears;
 	DM.sheepAppears.next = DM.sheepWavesScroll;
@@ -93,152 +62,103 @@ export const setupDialogues = (controller: ControllerFns) => {
 
 	DM.gruzAppears.next = GZ.intro;
 
-	controller.watch('SBExplainedQuest', (SBExplainedQuest) => {
-		if (SBExplainedQuest) controller.runDialogue(DM.gruzAppears);
-	});
+	controller.watch(
+		'$store.state.SBExplainedQuest',
+		(SBExplainedQuest: boolean) => {
+			if (SBExplainedQuest) state.runDialogue(DM.gruzAppears);
+		}
+	);
 
 	DM.sheepWavesScroll.onEnd(() => {
-		controller.toggleFlag('canGetSwA');
-		controller.setOptions({
-			'Take the scroll': () => {
-				controller.runDialogue(DM.playerTakesScroll);
+		state.toggleFlag('canGetSwA');
+		state.setOptions({
+			take: {
+				scroll: () => {
+					state.runDialogue(DM.playerTakesScroll);
+				},
 			},
 		});
 	});
 
 	DM.playerTakesScroll.onEnd(() => {
-		controller.toggleFlag('hasSwA', true);
+		state.toggleFlag('hasSwA', true);
 
-		controller.runDialogue(MP.playerTakesScroll); // have random party member say it
+		state.runDialogue(MP.playerTakesScroll); // have random party member say it
 
-		controller.setOptions({
-			'Examine the scroll': () => {
-				controller.runDialogue(DM.playerExaminesScroll);
+		state.setOptions({
+			examine: {
+				scroll: () => {
+					state.runDialogue(DM.playerExaminesScroll);
+				},
 			},
-			'Explain the scroll': () => {
-				controller.runDialogue(DM.playerExplainsScroll);
+			explain: {
+				scroll: () => {
+					state.runDialogue(DM.playerExplainsScroll);
+				},
 			},
-			'Use the scroll': () => {
-				controller.runDialogue(DM.playerUsesScroll);
+			use: {
+				scroll: () => {
+					state.runDialogue(DM.playerUsesScroll);
+				},
 			},
 		});
 	});
 
 	DM.playerExaminesScroll.onEnd(() => {
-		controller.toggleFlag('hasExaminedScroll');
-		controller.setOptions({
-			'Explain the scroll': () => {
-				controller.runDialogue(DM.playerExplainsScroll);
+		state.toggleFlag('hasExaminedScroll');
+		state.setOptions({
+			explain: {
+				scroll: () => {
+					state.runDialogue(DM.playerExplainsScroll);
+				},
 			},
-			'Use the scroll': () => {
-				controller.runDialogue(DM.playerUsesScroll);
+			use: {
+				scroll: () => {
+					state.runDialogue(DM.playerUsesScroll);
+				},
 			},
 		});
 	});
 
 	DM.playerExplainsScroll.onEnd(() => {
-		if (controller.flag('hasExaminedScroll')) {
-			controller.toggleFlag('hasSaidScrollName');
-			controller.runDialogue(DM._explainScroll);
-			controller.runDialogue(SB.playerExplainsScroll);
-			controller.setOptions({
-				'Use the scroll': () => {
-					controller.runDialogue(DM.playerUsesScroll);
+		if (state.flag('hasExaminedScroll')) {
+			state.toggleFlag('hasSaidScrollName');
+			state.runDialogue(DM._explainScroll);
+			state.runDialogue(SB.playerExplainsScroll);
+			state.setOptions({
+				use: {
+					scroll: () => {
+						state.runDialogue(DM.playerUsesScroll);
+					},
 				},
 			});
 		} else {
-			controller.runDialogue(DM._cantExplainScroll);
-			controller.setOptions({
-				'Examine the scroll': () => {
-					controller.runDialogue(DM.playerExaminesScroll);
+			state.runDialogue(DM._cantExplainScroll);
+			state.setOptions({
+				examine: {
+					scroll: () => {
+						state.runDialogue(DM.playerExaminesScroll);
+					},
 				},
-				'Use the scroll': () => {
-					controller.runDialogue(DM.playerUsesScroll);
+				use: {
+					scroll: () => {
+						state.runDialogue(DM.playerUsesScroll);
+					},
 				},
 			});
 		}
 	});
 
 	DM.playerUsesScroll.onEnd(() => {
-		controller.toggleFlag('hasUsedScroll');
-		controller.toggleFlag('SwAIsActive');
-		controller.runDialogue(SB.sheepSpeaksFirstTime);
+		state.toggleFlag('hasUsedScroll');
+		state.toggleFlag('SwAIsActive');
+		state.runDialogue(SB.sheepSpeaksFirstTime);
 	});
 
 	SB.sheepExplainsQuest.onEnd(() => {
-		controller.toggleFlag('SBExplainedQuest');
-		controller.runDialogue(DM.gruzAppears);
+		state.toggleFlag('SBExplainedQuest');
+		state.runDialogue(DM.gruzAppears);
 	});
 
 	return DM.intro; // starting point
 };
-
-// Alpine.data('controller', () => ({
-// 	isLoading: true,
-// 	flags: {
-// 		canGetSwA: false,
-// 		hasSwA: false,
-// 		hasUsedScroll: false,
-// 		hasExaminedScroll: false,
-// 		hasSaidScrollName: false,
-// 		SwAIsActive: false,
-// 		SBExplainedQuest: false,
-// 		SBCaptured: false,
-// 		gruzAtCompound: false,
-// 		gruzIsDefeated: false,
-// 		pathExamined: false,
-// 		apesAreAsleep: false,
-// 		apesAreDefeated: false,
-// 		bearInOuthouse: false,
-// 		bearIsDefeated: false,
-// 		partyWantsComp: false,
-// 		partyIsHostile: false,
-// 		nokeIsAlerted: false,
-// 		nokeRetreated: false,
-// 		wyrmDead: false,
-// 		nokeDefeated: false,
-// 		nokeDead: false,
-// 	},
-
-// 	flag(flag: Flag) {
-// 		return this.flags[flag];
-// 	},
-// 	toggleFlag(flag: Flag, set?: boolean) {
-// 		this.flags[flag] = set ?? !this.flags[flag];
-// 	},
-// 	watch(flag: Flag, callback: (value: boolean) => void) {
-// 		this.$watch(`flags.${flag}`, callback);
-// 	},
-// 	runDialogue(dialogue: DialogueItem) {
-// 		dialogue.callOnStart();
-// 		// print the text
-// 		//set the bg
-// 		// do whatever
-// 		dialogue.callOnEnd();
-// 	},
-// 	addJournalEntry(entry: string) {
-// 		// add entry to journal
-// 	},
-// 	setBGImage(url: string) {
-// 		// set the bg
-// 	},
-// 	setOptions(options: Record<string, () => void>) {
-// 		// set the options
-// 	},
-
-// 	init() {
-// 		this.runDialogue(
-// 			setupDialogues({
-// 				flag: this.flag,
-// 				watch: this.watch,
-// 				runDialogue: this.runDialogue,
-// 				toggleFlag: this.toggleFlag,
-// 				addJournalEntry: this.addJournalEntry,
-// 				setBGImage: this.setBGImage,
-// 				setOptions: this.setOptions,
-// 			})
-// 		);
-
-// 		setTimeout(() => (this.isLoading = false), 1000);
-// 	},
-// }));

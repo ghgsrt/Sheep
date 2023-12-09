@@ -17,7 +17,7 @@ export default {
 	sheepWavesScroll: {
 		text: [
 			'The sheep waves the scroll at the party',
-			'It seems to want them to take it',
+			'It seems to want them to <strong>take</strong> it',
 		],
 		bg: 'todo',
 	},
