@@ -7,7 +7,7 @@ export default (): AlpineComponent<any> => ({
 	init() {
 		setTimeout(() => (this.isLoaded = true), 1000);
 
-		this.$watch('tabIdx', (val: number) => {
+		this.$watch('tabIdx', () => {
 			this.$nextTick(() =>
 				this.$refs.tabs?.scrollTo({
 					top: this.$refs.tabs.scrollHeight,

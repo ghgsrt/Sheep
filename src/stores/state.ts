@@ -1,4 +1,4 @@
-import { DialogueDef, DialogueItem, setupDialogues } from '../dialogue';
+import { DialogueDef, DialogueItem } from '../dialogue';
 
 export type StoryOption = () => void;
 export type StoryOptions = Record<string, Record<string, StoryOption>>;
