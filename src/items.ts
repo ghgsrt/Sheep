@@ -9,16 +9,16 @@ export interface Item {
 	onUse?: () => void;
 }
 
-interface Weapon extends Item {
-	damage: number;
-	range: number;
-	durability: number;
-}
+// interface Weapon extends Item {
+// 	damage: number;
+// 	range: number;
+// 	durability: number;
+// }
 
-interface Armor extends Item {
-	defense: number;
-	durability: number;
-}
+// interface Armor extends Item {
+// 	defense: number;
+// 	durability: number;
+// }
 
 export const items: Record<string, Item> = {
 	scrollOfSPA: {
